@@ -115,6 +115,11 @@
     display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--muted); font-weight:600; text-align:center; padding:0 10px;}
   .rtline{margin:0 20px 16px; background:#fdf1ef; border:1px solid #f2c9c1; border-left:3px solid var(--c-rt); border-radius:10px; padding:10px 14px; font-size:12px; color:#9a2c1a;}
   .rtline b{color:#7a2114;}
+  .kp-imgs{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin:8px 0 10px;}
+  .kp-imgs figure{margin:0;}
+  .kp-imgs a{display:block;}
+  .kp-imgs img{width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--ring);}
+  .kp-imgs figcaption{font-size:10.5px; color:var(--muted); margin-top:3px; line-height:1.35;}
 </style>
 </head>
 <body>
@@ -195,13 +200,13 @@
     <div class="kb-head">🎬 AI 제작 지시 — 프롤로그</div>
     <div class="kp-item">
       <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag loop">루프 · 5s</span><b>P0 · (등장 전) 커튼 위 권율 동상 그림자 — 복선</b></div>
-      <div class="kp-slot">🖼 생성 예정 — 결과 이미지/클립 배치 자리 · 무드 레퍼런스: 대표 제공(붉은 커튼 + 강한 백라이트 실루엣 그림자)</div>
+      <div class="kp-imgs"><figure><a href="img/p1_4.jpg" target="_blank" rel="noopener"><img src="img/p1_4.jpg" alt="P1 에다 · 붉은커튼 장군동상" loading="lazy"></a><figcaption>P1 에다 · 붉은커튼 장군동상</figcaption></figure><figure><a href="img/p1_5.jpg" target="_blank" rel="noopener"><img src="img/p1_5.jpg" alt="P1 에다 · 커튼젖힘 장군동상" loading="lazy"></a><figcaption>P1 에다 · 커튼젖힘 장군동상</figcaption></figure></div>
       <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A dark theatrical stage curtain fills the entire frame, dimly and warmly backlit from behind; looming large on the curtain is the ominous, hard-edged shadow silhouette of a standing Korean Joseon-dynasty general statue in full armor and helmet, cast dramatically as a backlit shadow, faint and mysterious, its edges faintly glowing with warm rim light. Only a subtle slow flicker of the backlight and the faintest sway of the heavy fabric. Camera fully locked, no camera movement; compose so the first and last frames match, so the 5-second clip can be repeated back-to-back as a seamless loop. High-contrast cinematic silhouette, moody and theatrical. Clean stylized 3D animation, low-poly game-art world, no visible people.</span></div>
       <div class="kp-note">암전~에다 등장 직전 배경. 관객이 커튼 너머 권율 동상 실루엣을 어렴풋이 느끼게 하는 <b>복선</b> — 에다가 이 커튼을 Wipe로 걷어내면 P1의 동상 광장이 드러남. 무드 레퍼런스: 대표 제공 이미지(붉은 커튼·강한 백라이트 그림자). 정지 이미지 + 엔진 미세 무빙으로 대체 가능.</div>
     </div>
     <div class="kp-item">
       <div class="kp-meta"><span class="kp-tag i2v">I2V</span><span class="kp-tag oneshot">1회 · 5s</span><b>P1 · 에다 등장 → 화면 Wipe 열기</b></div>
-      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리 (에다 렌더 스틸을 시작 프레임으로)</div>
+      <div class="kp-imgs"><figure><a href="img/p1_1.jpg" target="_blank" rel="noopener"><img src="img/p1_1.jpg" alt="P1 에다 · 빛틈 정사각" loading="lazy"></a><figcaption>P1 에다 · 빛틈 정사각</figcaption></figure><figure><a href="img/p1_2.jpg" target="_blank" rel="noopener"><img src="img/p1_2.jpg" alt="P1 에다 · 빛기둥 동상" loading="lazy"></a><figcaption>P1 에다 · 빛기둥 동상</figcaption></figure><figure><a href="img/p1_3.jpg" target="_blank" rel="noopener"><img src="img/p1_3.jpg" alt="P1 에다 · 커튼틈 정사각" loading="lazy"></a><figcaption>P1 에다 · 커튼틈 정사각</figcaption></figure></div>
       <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A small stylized 3D animated cat maestro character named Aida with bright playful eyes squeezes her face through a narrow glowing crack in a pure black screen, comically scrunching and wrinkling her face, peeks out and looks around at the audience left and right, then grabs the edge of the black screen with both paws and drags it sideways, wiping the darkness away to reveal a sunny stone plaza in front of a bronze statue of a fully armored Korean Joseon-dynasty general. Camera: static frontal shot. Clean stylized 3D animation, low-poly game-art look, soft warm lighting, whimsical playful mood, smooth natural motion.</span></div>
       <div class="kp-note">시작 = <b>P0 커튼 그림자</b> 상태에서 에다가 얼굴을 내밀고 커튼을 걷어냄 → Wipe 종점 프레임 = 실시간 '권율 동상 광장' 씬 구도와 매칭(전환 장치 P2). 캐릭터 표정 연기는 키포즈 수작업 하이브리드 권장.</div>
     </div>
@@ -316,13 +321,13 @@
     <div class="kb-head">🎬 AI 제작 지시 — M03 (본 공연 유일한 대형 AI 배경)</div>
     <div class="kp-item">
       <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag loop">항해 루프 · 5s</span><b>M03a · 뱃길 항해 (중간 구간, 루프 이어붙이기)</b></div>
-      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리</div>
+      <div class="kp-imgs"><figure><a href="img/m03a_1.jpg" target="_blank" rel="noopener"><img src="img/m03a_1.jpg" alt="M03a 뱃길 · 지붕배 새벽버들" loading="lazy"></a><figcaption>M03a 뱃길 · 지붕배 새벽버들</figcaption></figure><figure><a href="img/m03a_2.jpg" target="_blank" rel="noopener"><img src="img/m03a_2.jpg" alt="M03a 뱃길 · 갈대섬 초가" loading="lazy"></a><figcaption>M03a 뱃길 · 갈대섬 초가</figcaption></figure><figure><a href="img/m03a_3.jpg" target="_blank" rel="noopener"><img src="img/m03a_3.jpg" alt="M03a 뱃길 · 광활수면 일출마을" loading="lazy"></a><figcaption>M03a 뱃길 · 광활수면 일출마을</figcaption></figure><figure><a href="img/m03a_4.jpg" target="_blank" rel="noopener"><img src="img/m03a_4.jpg" alt="M03a 뱃길 · 소나무프레임 정자" loading="lazy"></a><figcaption>M03a 뱃길 · 소나무프레임 정자</figcaption></figure><figure><a href="img/m03a_5.jpg" target="_blank" rel="noopener"><img src="img/m03a_5.jpg" alt="M03a 뱃길 · 로우폴리 마을" loading="lazy"></a><figcaption>M03a 뱃길 · 로우폴리 마을</figcaption></figure><figure><a href="img/m03a_6.jpg" target="_blank" rel="noopener"><img src="img/m03a_6.jpg" alt="M03a 뱃길 · 로우폴리 달빛" loading="lazy"></a><figcaption>M03a 뱃길 · 로우폴리 달빛</figcaption></figure></div>
       <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A slow first-person boat voyage along a wide calm river at dawn, gentle mist hovering over the water, distant low hills, reed banks and willow trees slowly drifting past on both sides, soft warm morning light shimmering on the water. Camera: very slow steady forward glide, the boat never turns. Loopable traveling section — compose the water and mid-distance so the 5-second clip can be tiled/extended back-to-back. Clean stylized 3D animation, low-poly game-art world, traditional Korean Joseon-dynasty riverscape, no people.</span></div>
       <div class="kp-note">3~4분 여정은 한 클립 불가 → 이 항해 루프를 이어 붙여 구간을 채운다(핑퐁/타일링). 전주~노래 중반 배경.</div>
     </div>
     <div class="kp-item">
       <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag oneshot">1회 · 5s</span><b>M03b · 옛 행주산성 도착·정박 (전환)</b></div>
-      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리</div>
+      <div class="kp-imgs"><figure><a href="img/m03b_1.jpg" target="_blank" rel="noopener"><img src="img/m03b_1.jpg" alt="M03b 행주도착 · 로우폴리 성책일출" loading="lazy"></a><figcaption>M03b 행주도착 · 로우폴리 성책일출</figcaption></figure><figure><a href="img/m03b_2.jpg" target="_blank" rel="noopener"><img src="img/m03b_2.jpg" alt="M03b 행주도착 · 실사 안개목책" loading="lazy"></a><figcaption>M03b 행주도착 · 실사 안개목책</figcaption></figure><figure><a href="img/m03b_3.jpg" target="_blank" rel="noopener"><img src="img/m03b_3.jpg" alt="M03b 행주도착 · 로우폴리 군영막사" loading="lazy"></a><figcaption>M03b 행주도착 · 로우폴리 군영막사</figcaption></figure><figure><a href="img/m03b_4.jpg" target="_blank" rel="noopener"><img src="img/m03b_4.jpg" alt="M03b 행주도착 · 실사 언덕군영" loading="lazy"></a><figcaption>M03b 행주도착 · 실사 언덕군영</figcaption></figure><figure><a href="img/m03b_5.jpg" target="_blank" rel="noopener"><img src="img/m03b_5.jpg" alt="M03b 행주도착 · 로우폴리 연기깃발" loading="lazy"></a><figcaption>M03b 행주도착 · 로우폴리 연기깃발</figcaption></figure></div>
       <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>The slow river voyage arrives at the old Haengju Sanseong mountain fortress and docks at a wooden ferry landing; the camera settles and comes to rest, revealing a winding grassy hill studded with wooden palisades, and far in the distance small military camps and fluttering banners (far background only, no close-up soldiers). Camera glides forward then gently stops. Clean stylized 3D animation, low-poly game-art world, traditional Korean Joseon-dynasty fortress landscape, warm daylight, no close-up people.</span></div>
       <div class="kp-note">클라이맥스 '아-아'에서 정박 — 영상 타임코드↔Koreographer 동기. 근경 군사 제외(원경 군영·목책·깃발까지만, 기보유 에셋 활용). 도착 후 정지 프레임은 대사 구간 배경으로 재사용.</div>
     </div>
@@ -363,7 +368,7 @@
     <div class="kb-head">🎬 AI 제작 지시 — M04</div>
     <div class="kp-item">
       <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag loop">루프 · 5s</span><b>M04 · 전란의 하늘 (붉고 노란 구름)</b></div>
-      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리</div>
+      <div class="kp-imgs"><figure><a href="img/m04_1.jpg" target="_blank" rel="noopener"><img src="img/m04_1.jpg" alt="M04 전란하늘 · 적운광선" loading="lazy"></a><figcaption>M04 전란하늘 · 적운광선</figcaption></figure><figure><a href="img/m04_2.jpg" target="_blank" rel="noopener"><img src="img/m04_2.jpg" alt="M04 전란하늘 · 금빛구름" loading="lazy"></a><figcaption>M04 전란하늘 · 금빛구름</figcaption></figure><figure><a href="img/m04_3.jpg" target="_blank" rel="noopener"><img src="img/m04_3.jpg" alt="M04 전란하늘 · 지평선마을" loading="lazy"></a><figcaption>M04 전란하늘 · 지평선마을</figcaption></figure><figure><a href="img/m04_4.jpg" target="_blank" rel="noopener"><img src="img/m04_4.jpg" alt="M04 전란하늘 · 섬광번개" loading="lazy"></a><figcaption>M04 전란하늘 · 섬광번개</figcaption></figure></div>
       <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>Ambient background loop — an ominous war-torn sky over an ancient Korean battlefield at dusk, thick red and yellow storm clouds slowly rolling and churning across the heavens, faint drifting smoke, distant dark hills along the bottom edge. Camera fully locked, no camera movement; only the slow continuous cyclic churning of the clouds and drifting smoke. Compose so the first and last frames match, so the 5-second clip can be repeated back-to-back as a seamless loop. Clean stylized 3D animation, low-poly game-art world, dramatic ominous mood, no people.</span></div>
       <div class="kp-note">갑옷 강림(실시간 XR)의 배경. 타임랩스형 준정지라 정지 이미지 + 엔진 미세 무빙으로 대체 가능. 카메라 하늘→아래 틸트는 Unity가 처리(배경은 하늘만).</div>
     </div>
@@ -401,7 +406,7 @@
     <div class="kb-head">🎬 AI 제작 지시 — 독산성 막간 (선택 · 언덕 에셋 대체 가능)</div>
     <div class="kp-item">
       <div class="kp-meta"><span class="kp-tag t2v">T2V/정지</span><span class="kp-tag still">정지배경</span><b>독산성 언덕 정경</b></div>
-      <div class="kp-slot">🖼 생성 예정 — 결과 이미지 배치 자리</div>
+      <div class="kp-imgs"><figure><a href="img/doksan_1.jpg" target="_blank" rel="noopener"><img src="img/doksan_1.jpg" alt="독산성 · 강계곡 군영" loading="lazy"></a><figcaption>독산성 · 강계곡 군영</figcaption></figure><figure><a href="img/doksan_2.jpg" target="_blank" rel="noopener"><img src="img/doksan_2.jpg" alt="독산성 · 큰나무 막사" loading="lazy"></a><figcaption>독산성 · 큰나무 막사</figcaption></figure><figure><a href="img/doksan_3.jpg" target="_blank" rel="noopener"><img src="img/doksan_3.jpg" alt="독산성 · 망루 연기" loading="lazy"></a><figcaption>독산성 · 망루 연기</figcaption></figure><figure><a href="img/doksan_4.jpg" target="_blank" rel="noopener"><img src="img/doksan_4.jpg" alt="독산성 · 쌀자루 망루" loading="lazy"></a><figcaption>독산성 · 쌀자루 망루</figcaption></figure></div>
       <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A stylized low-poly illustration — Doksan mountain fortress on a sunlit grassy hill under a clear sky, wooden ramparts along the ridge, dry summer hills rolling into the distance. Traditional Korean Joseon-dynasty fortress setting, clean low-poly game-art style, soft bright daylight. Still background image, minimal motion; leave the center-foreground open for a real-time character and horse.</span></div>
       <div class="kp-note">쌀로 말 씻기기(실시간 SDF)의 배경. <b>대본 명시: 불가 시 기보유 언덕 에셋으로 대체</b> → AI 생성은 선택 사항. 중앙 전경은 실시간 캐릭터·말 자리로 비워둘 것.</div>
     </div>
