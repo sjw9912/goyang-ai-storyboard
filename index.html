@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고양 대본 3고 「에다, 권율을 만나다」 — 스토리보드 & 루프 (AI 제작 분류본)</title>
+<style>
+  :root{
+    --surface:#fcfcfb; --page:#f9f9f7;
+    --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+    --grid:#e1e0d9; --baseline:#c3c2b7; --ring:rgba(11,11,11,.10);
+    --c-loop:#1baf7a;    /* LOOP 배경영상 */
+    --c-oneshot:#4a3aa7; /* 1회 AI영상·전환컷 */
+    --c-bg:#eda100;      /* AI 정지배경 */
+    --c-rt:#c2361f;      /* 실시간 XR (Unity) */
+    --c-song:#2a78d6;    /* 곡목 / 연주 */
+    --c-dir:#6b6960;     /* 연출 요소 */
+    --warn:#d03b3b;
+    --ok:#0d7a54;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--page); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI","Malgun Gothic",sans-serif;
+    line-height:1.6; padding:32px 16px 80px;}
+  .wrap{max-width:980px; margin:0 auto;}
+  h1{font-size:24px; font-weight:800; letter-spacing:-.3px;}
+  .sub{color:var(--ink2); font-size:13px; margin-top:6px;}
+  .src{color:var(--muted); font-size:12px; margin-top:6px;}
+
+  .legend{display:flex; flex-wrap:wrap; gap:8px; margin:16px 0 4px;}
+  .chip{display:inline-flex; align-items:center; gap:7px; font-size:12px; font-weight:600;
+    background:var(--surface); border:1px solid var(--ring); border-radius:20px; padding:4px 12px;}
+  .dot{width:10px; height:10px; border-radius:3px; flex:none;}
+  .legend-note{color:var(--muted); font-size:12px; margin:6px 0 14px;}
+
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:12px 0 24px;}
+  .tile{background:var(--surface); border:1px solid var(--ring); border-radius:12px; padding:12px 14px;}
+  .tile .lab{font-size:11.5px; color:var(--ink2); font-weight:600;}
+  .tile .val{font-size:24px; font-weight:800; letter-spacing:-.5px;}
+  .tile .det{font-size:11px; color:var(--muted);}
+
+  .songlist{background:var(--surface); border:1px solid var(--ring); border-radius:12px; padding:16px 20px; margin-bottom:26px;}
+  .songlist h3{font-size:14px; font-weight:800; margin-bottom:8px;}
+  .songlist ol{margin-left:20px; font-size:13px; color:var(--ink2);}
+  .songlist li{margin-top:2px;}
+  .songlist .note{font-size:11.5px; color:var(--warn); margin-top:8px; font-weight:600;}
+
+  .scene{background:var(--surface); border:1px solid var(--ring); border-radius:14px; margin-bottom:22px; overflow:hidden;}
+  .s-head{padding:13px 20px; background:var(--ink); color:#fff; display:flex; flex-wrap:wrap; align-items:baseline; gap:10px;}
+  .s-head .no{font-size:12px; font-weight:800; background:rgba(255,255,255,.18); border-radius:6px; padding:2px 9px;}
+  .s-head .t{font-size:15px; font-weight:800;}
+  .s-head .fixinfo{font-size:11.5px; color:#c3c2b7; margin-left:auto;}
+
+  .anno{display:grid; grid-template-columns:1fr; gap:0; border-bottom:1px solid var(--grid);}
+  .a-row{display:grid; grid-template-columns:118px 1fr; border-bottom:1px solid var(--grid); font-size:12.5px;}
+  .a-row:last-child{border-bottom:none;}
+  .a-key{padding:8px 12px; font-weight:800; font-size:11.5px; display:flex; align-items:flex-start; gap:6px; color:var(--ink);}
+  .a-key .dot{margin-top:4px;}
+  .a-val{padding:8px 14px 8px 0; color:var(--ink2);}
+  .a-val b{color:var(--ink);}
+  .lv{display:inline-block; font-size:10.5px; font-weight:800; border-radius:4px; padding:1px 7px; margin-left:6px; vertical-align:1px;}
+  .lv.max{background:#fdf1f1; color:var(--warn); border:1px solid #f2c4c4;}
+  .lv.high{background:#fef7e8; color:#a06f00; border:1px solid #f0debb;}
+  .lv.mid{background:#eef4fc; color:#1c5cab; border:1px solid #cfe0f5;}
+  .lv.low{background:#eefaf4; color:#0d7a54; border:1px solid #c5ead9;}
+  .lv.done{background:#eefaf4; color:var(--ok); border:1px solid #c5ead9;}
+  .lv.p1{background:#fef7e8; color:#a06f00; border:1px solid #f0debb;}
+  .warnflag{color:var(--warn); font-weight:700;}
+  .okflag{color:var(--ok); font-weight:700;}
+
+  .music{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
+  .play{display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-size:11.5px; font-weight:700;
+    color:#fff; background:var(--ink); border:none; border-radius:6px; padding:4px 11px;}
+  .play.alt{background:var(--surface); color:var(--ink); border:1.5px solid var(--ink);}
+  .play:hover{opacity:.82;}
+  .player{margin:0 20px; display:none;}
+  .player.open{display:block; padding:10px 0;}
+  .player iframe{width:100%; max-width:540px; aspect-ratio:16/9; border:0; border-radius:10px; display:block;}
+  .player .close{margin-top:6px; font-size:11.5px; color:var(--muted); cursor:pointer; background:none; border:none; text-decoration:underline;}
+
+  .script{padding:14px 22px 18px;}
+  .script .cap{font-size:11px; font-weight:800; color:var(--muted); letter-spacing:.6px; margin-bottom:8px;}
+  .dir{color:var(--ink2); font-size:13px; font-style:italic; margin:7px 0; padding-left:12px; border-left:3px solid var(--grid);}
+  .line{font-size:13.5px; margin:6px 0;}
+  .line b{display:inline-block; min-width:66px; color:var(--ink);}
+  .mnote{font-size:12.5px; color:#a06f00; background:#fef7e8; border:1px dashed #f0debb; border-radius:6px; padding:4px 10px; margin:7px 0;}
+
+  .appendix{background:var(--page); border:1px dashed var(--baseline);}
+  footer{margin-top:40px; color:var(--muted); font-size:11.5px; border-top:1px solid var(--grid); padding-top:12px;}
+
+  /* Kling 제작 가이드 — 상단 */
+  .kguide{background:var(--surface); border:1px solid var(--ring); border-left:3px solid var(--c-loop); border-radius:12px; padding:15px 20px; margin-bottom:26px;}
+  .kguide h3{font-size:14px; font-weight:800; margin-bottom:8px;}
+  .kguide .g{font-size:12.5px; line-height:1.75; color:var(--ink2);}
+  .kguide .g b{color:var(--ink);}
+  /* Kling 프롬프트 — 장면 내 삽입 박스 */
+  .klingbox{margin:0 20px 16px; background:#faf9f6; border:1px solid var(--ring); border-left:3px solid var(--c-loop); border-radius:10px; padding:12px 14px;}
+  .kb-head{font-size:11.5px; font-weight:800; color:#118a5f; letter-spacing:.2px; margin-bottom:10px;}
+  .kp-item{margin-bottom:14px; padding-bottom:14px; border-bottom:1px dashed var(--grid);}
+  .kp-item:last-child{margin-bottom:0; padding-bottom:0; border-bottom:none;}
+  .kp-meta{font-size:12.5px; color:var(--ink2); margin-bottom:6px;}
+  .kp-meta b{color:var(--ink);}
+  .kp-tag{display:inline-block; font-size:10.5px; font-weight:800; border-radius:4px; padding:1px 7px; margin-right:6px; vertical-align:1px;
+    background:#eef4fc; color:#1c5cab; border:1px solid #cfe0f5;}
+  .kp-tag.i2v, .kp-tag.t2v{background:#eef4fc; color:#1c5cab; border-color:#cfe0f5;}
+  .kp-tag.loop{background:#e9f7ef; color:#0d7a54; border-color:#bfe6d1;}
+  .kp-tag.oneshot{background:#f1eefb; color:#4a3aa7; border-color:#d5d0f0;}
+  .kp-tag.still{background:#fdf3e0; color:#a06f00; border-color:#f0debb;}
+  .kp-pre{position:relative; background:#141412; color:#e8e6df; font-size:11.6px; line-height:1.6; border-radius:8px; padding:10px 60px 10px 12px; white-space:pre-wrap; word-break:break-word; font-family:Consolas,"Malgun Gothic",monospace;}
+  .kp-copy{position:absolute; top:6px; right:6px; font-size:10.5px; font-weight:700; background:#fff; color:#0b0b0b; border:none; border-radius:5px; padding:3px 9px; cursor:pointer;}
+  .kp-copy:hover{opacity:.8;}
+  .kp-note{font-size:11.5px; color:var(--muted); margin-top:6px;}
+  .kp-slot{margin:8px 0; height:96px; border:1.5px dashed var(--baseline); border-radius:8px; background:repeating-linear-gradient(45deg,#f4f3ee,#f4f3ee 10px,#efeee8 10px,#efeee8 20px);
+    display:flex; align-items:center; justify-content:center; font-size:11.5px; color:var(--muted); font-weight:600; text-align:center; padding:0 10px;}
+  .rtline{margin:0 20px 16px; background:#fdf1ef; border:1px solid #f2c9c1; border-left:3px solid var(--c-rt); border-radius:10px; padding:10px 14px; font-size:12px; color:#9a2c1a;}
+  .rtline b{color:#7a2114;}
+</style>
+</head>
+<body>
+<div id="ddayBadge" style="position:fixed; top:12px; right:12px; z-index:999; background:#0b0b0b; color:#fff; border-radius:24px; padding:7px 16px; box-shadow:0 2px 10px rgba(0,0,0,.25); display:flex; align-items:baseline; gap:8px;">
+  <span class="js-dday" style="font-size:17px; font-weight:800; letter-spacing:-.3px;">D-··</span>
+  <span style="font-size:11px; color:#c3c2b7; font-weight:600;">공연 2026.9.4(금) 19:30</span>
+</div>
+<div class="wrap">
+
+<header>
+  <h1>고양 대본 3고 「에다, 권율을 만나다」 — 스토리보드 &amp; 루프 (AI 제작 분류본)</h1>
+  <div class="sub">대본 3고(7/19판) 원문 전량 + 씬별 제작 요소 · <b>AI 생성이 필요한 소수 장면만 🔁 LOOP / 🎬 1회 / 🖼 정지로 구분하고 Kling 프롬프트 부착</b> · 2026.9.4(금) 19:30 새라새극장</div>
+  <div class="src">각 장면을 <b>🔁 LOOP 배경영상 · 🎬 1회 AI클립 · 🖼 정지배경 · 🎼 연주(XR 실시간) · 🖥 실시간 XR VFX · 🎭 연출</b>으로 분류 · ▶ 버튼은 페이지 내 재생 · 🎬 초록 박스 = AI 생성 지시(프롬프트 + 복사) · 🖼 이미지 자리는 <b>생성 예정</b></div>
+<div style="margin-top:10px; font-size:12.5px; font-weight:700; color:#0d7a54; background:#eefaf4; border:1px solid #c5ead9; border-radius:8px; padding:8px 14px;">✔ 3고의 핵심 = <b>영상 부담이 대부분 실시간 XR(Unity)로 이동</b>. AI로 실제 만들 것은 <b>4곳뿐</b> — 프롤로그 에다 등장(Wipe), M03 뱃길 배경, M04 전란 하늘, (선택)독산성 배경. 나머지 동상 각성·역모프·갑옷강림·쌀SDF·전투·VR지휘는 Unity 실시간이라 <b>AI 생성 불필요</b>.</div>
+</header>
+
+<div class="legend">
+  <span class="chip"><span class="dot" style="background:var(--c-loop)"></span>🔁 LOOP 배경영상 — 심리스 5초 반복</span>
+  <span class="chip"><span class="dot" style="background:var(--c-oneshot)"></span>🎬 1회 AI클립 — 등장·전환·진행 배경(재사용)</span>
+  <span class="chip"><span class="dot" style="background:var(--c-bg)"></span>🖼 AI 정지배경 — 정지 이미지(최저비용)</span>
+  <span class="chip"><span class="dot" style="background:var(--c-song)"></span>🎼 연주 — XR마에스트로(에다/권율 지휘)</span>
+  <span class="chip"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR VFX — Unity(생성 불필요)</span>
+  <span class="chip"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출·큐 — 배우 동선·UI·가면</span>
+</div>
+<div class="legend-note">🎬 초록 박스 = AI 생성 대상(🔁루프/🎬1회/🖼정지) · 🖥 빨강 = Unity 실시간(생성 불필요) · 난이도 <span class="lv max">최상</span><span class="lv high">상</span><span class="lv mid">중</span><span class="lv low">하</span> · 구현 <span class="lv done">완료</span><span class="lv p1">신규 P1/P2</span></div>
+
+<div class="tiles">
+  <div class="tile"><div class="lab">AI 생성 필요 (루프+1회+정지)</div><div class="val">4곳</div><div class="det">2고 16장면 → 대폭 감소</div></div>
+  <div class="tile"><div class="lab">🔁 LOOP 배경</div><div class="val">2종</div><div class="det">전란 하늘 · (선택)독산성/행주 정경</div></div>
+  <div class="tile"><div class="lab">🎬 1회 AI클립</div><div class="val">3컷</div><div class="det">에다 Wipe 등장 · 뱃길 항해 · 행주산성 도착</div></div>
+  <div class="tile"><div class="lab">🖥 실시간 XR (생성 불필요)</div><div class="val">8장면</div><div class="det">동상각성·역모프·갑옷강림·쌀SDF·판정·VR지휘·전투</div></div>
+</div>
+
+<!-- 곡 리스트 원문 -->
+<div class="songlist">
+  <h3>고양 곡 슬롯 (대본 3고 M01~M08)</h3>
+  <ol>
+    <li>에다 서곡</li>
+    <li>희망의 나라로 — 박수 게임 ① (권율 동상 깨우기)</li>
+    <li>Barcarolle — 나루터·배 이동</li>
+    <li>Va pensiero <b>또는</b> 남촌 — 전란 회상·갑옷</li>
+    <li>Non più andrai (Figaro aria) — 박수 게임 ② (쌀로 말 씻기기)·투구</li>
+    <li>Nessun dorma — 권율 VR 지휘·검</li>
+    <li>아름다운 나라</li>
+    <li>에다 서곡 Reprise</li>
+  </ol>
+  <div class="note">⚠ M04 곡 미정(Va pensiero vs 남촌 — 음악감독 확정 필요) · 아름다운 나라(㈜예술숲)·희망의 나라로 편곡본 등 권리 확인은 기존 체크 유지</div>
+</div>
+
+<div class="kguide" id="kling-guide">
+  <h3>🎬 Kling 영상 생성 — 제작 가이드 (2026-07-21 · 크레딧 절약형)</h3>
+  <div class="g">
+    · <b>3고 핵심</b>: 영상 대부분이 <b>실시간 XR(Unity)</b>로 이동 → AI 생성은 <b>배경 4곳</b>만. 캐릭터 연기·전투·모프는 엔진이 처리하므로 Kling 대상 아님.<br>
+    · <b>움직이는 배경</b>은 5초 <b>심리스 루프</b>로 <span class="kp-tag loop" style="margin:0 2px;">루프 · 5s</span> (전란 하늘·정경). 핑퐁 루프로 10초 효과, 크레딧 0 추가.<br>
+    · <b>M03 뱃길</b>은 3~4분 여정이라 한 클립 불가 → <b>항해 루프(중간) + 도착 전환(1회)</b>로 분리 <span class="kp-tag oneshot" style="margin:0 2px;">1회 · 5s</span>. 배는 방향 전환 없이 전진만(루프 이어붙이기 쉽게).<br>
+    · 배경은 가급적 <b>정지 이미지</b> + 엔진 내 미세 무빙(느린 줌·패럴럭스)으로 비디오 생성 자체를 회피 <span class="kp-tag still" style="margin:0 2px;">정지</span>.<br>
+    · <span class="warnflag">🖥 실시간 XR(동상 각성·역모프·갑옷강림·쌀SDF·판정·VR지휘·3단 전투)·🎼 연주는 Unity 실시간 → Kling 불필요.</span><br>
+    · 캐릭터 등장 컷(프롤로그 에다)은 Unity 렌더 스틸을 <b>I2V 시작 프레임</b>으로(일관성 확보) / 배경은 T2V · 16:9 · 1080p · 리트라이 3~10회.<br>
+    · 각 클립 프롬프트·복사 버튼은 아래 <b>해당 장면 섹션의 초록 박스</b>에. 캐릭터 앵커·네거티브는 전 클립 동일.<br>
+    <div style="margin-top:10px;"><b>캐릭터 앵커 — 전 클립 공통 레퍼런스</b></div>
+    <div style="font-size:12px; margin-top:4px; line-height:1.7;">· <b>에다(Aida)</b>: a small stylized 3D animated cat maestro character, bright playful eyes, holding a tiny conductor's baton, whimsical.<br>
+    · <b>권율(Kwon Yul)</b>: a stylized low-poly 3D animated Korean Joseon-dynasty general — 3고 진행: 흑철릭(맨몸)→갑옷→투구→검. 동상 형태는 완전무장(갑옷·투구·검) 청동상. <b class="warnflag">반드시 한국(조선) 갑주 — 중국 한푸·일본 사무라이 아님.</b></div>
+    <div style="margin-top:8px;"><b>공통 네거티브 프롬프트</b> (모든 클립 동일 적용):</div>
+    <div class="kp-pre" style="margin-top:6px;"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>photorealistic skin, uncanny realistic face, extra fingers, deformed hands, modern clothing, modern buildings, cars, power lines, Chinese hanfu, Japanese samurai armor, Japanese castle, text, subtitles, watermark, logo, flickering, jittering, abrupt cuts</span></div>
+  </div>
+</div>
+
+<!-- ===== 프롤로그 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">프롤로그</span><span class="t">암전 — 나레이션·에다 등장·화면 열기</span><span class="fixinfo">대본 [1]~[5]</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-loop)"></span>🔁 등장 전</div><div class="a-val"><b>커튼 위 권율 동상 그림자(복선)</b> — 에다가 커튼을 걷기 전, 닫힌 화면(커튼)에 완전무장 동상 실루엣이 <b>백라이트 그림자</b>로 어렴풋이 드리움. 무드 레퍼런스: 대표 제공 이미지(붉은 커튼·강한 실루엣 그림자) <span class="lv mid">중</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-oneshot)"></span>🎬 1회 AI</div><div class="a-val">에다 등장 컷 — 비좁은 틈을 비집고 나오며 얼굴을 구기는 연기 → 관객 둘러보기 → 모서리 잡고 화면을 쫙 여는 <b>Wipe</b> <span class="lv high">상</span> (캐릭터 표정 연기 — AI 배경/중간프레임 + 키포즈 수작업 하이브리드 권장)</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val">Wipe 종점 = <b>실시간 '권율 동상 광장' 씬으로 전환</b> (영상→실시간 전환 장치 <span class="lv p1">신규 P2</span>)</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">나레이션 녹음 · 관객 "에다!" 호출 유도 큐 · 에다가 스크린 밖으로 튀어나옴 → <b>에다 배우(가면) 등장 전환</b> · XR 마에스트로 전환 대기</div></div>
+  </div>
+  <div class="klingbox">
+    <div class="kb-head">🎬 AI 제작 지시 — 프롤로그</div>
+    <div class="kp-item">
+      <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag loop">루프 · 5s</span><b>P0 · (등장 전) 커튼 위 권율 동상 그림자 — 복선</b></div>
+      <div class="kp-slot">🖼 생성 예정 — 결과 이미지/클립 배치 자리 · 무드 레퍼런스: 대표 제공(붉은 커튼 + 강한 백라이트 실루엣 그림자)</div>
+      <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A dark theatrical stage curtain fills the entire frame, dimly and warmly backlit from behind; looming large on the curtain is the ominous, hard-edged shadow silhouette of a standing Korean Joseon-dynasty general statue in full armor and helmet, cast dramatically as a backlit shadow, faint and mysterious, its edges faintly glowing with warm rim light. Only a subtle slow flicker of the backlight and the faintest sway of the heavy fabric. Camera fully locked, no camera movement; compose so the first and last frames match, so the 5-second clip can be repeated back-to-back as a seamless loop. High-contrast cinematic silhouette, moody and theatrical. Clean stylized 3D animation, low-poly game-art world, no visible people.</span></div>
+      <div class="kp-note">암전~에다 등장 직전 배경. 관객이 커튼 너머 권율 동상 실루엣을 어렴풋이 느끼게 하는 <b>복선</b> — 에다가 이 커튼을 Wipe로 걷어내면 P1의 동상 광장이 드러남. 무드 레퍼런스: 대표 제공 이미지(붉은 커튼·강한 백라이트 그림자). 정지 이미지 + 엔진 미세 무빙으로 대체 가능.</div>
+    </div>
+    <div class="kp-item">
+      <div class="kp-meta"><span class="kp-tag i2v">I2V</span><span class="kp-tag oneshot">1회 · 5s</span><b>P1 · 에다 등장 → 화면 Wipe 열기</b></div>
+      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리 (에다 렌더 스틸을 시작 프레임으로)</div>
+      <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A small stylized 3D animated cat maestro character named Aida with bright playful eyes squeezes her face through a narrow glowing crack in a pure black screen, comically scrunching and wrinkling her face, peeks out and looks around at the audience left and right, then grabs the edge of the black screen with both paws and drags it sideways, wiping the darkness away to reveal a sunny stone plaza in front of a bronze statue of a fully armored Korean Joseon-dynasty general. Camera: static frontal shot. Clean stylized 3D animation, low-poly game-art look, soft warm lighting, whimsical playful mood, smooth natural motion.</span></div>
+      <div class="kp-note">시작 = <b>P0 커튼 그림자</b> 상태에서 에다가 얼굴을 내밀고 커튼을 걷어냄 → Wipe 종점 프레임 = 실시간 '권율 동상 광장' 씬 구도와 매칭(전환 장치 P2). 캐릭터 표정 연기는 키포즈 수작업 하이브리드 권장.</div>
+    </div>
+  </div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="line"><b>나레이션</b>: 그저 단순한 고양이였을 뿐인 에다. 이 작은 고양이는 세상의 소리들을 듣기 시작했고, 곧 세상의 모든 소리가 음악이 될 수 있음을 깨달아. 음악과 신비의 숲 애니피아로 떠난 에다는 이제 마에스트로가 되어 우리들에게 돌아왔지. 자, 다함께 불러볼까? 에다, 에다, 에다!</p>
+    <p class="dir">[영상은 검은 화면. 관객들 호응으로 에다를 부르고 나면, 에다, 고양이가 비좁은 틈을 비좁고 나오듯이 얼굴 구기며 화면 한 가운데에 등장. 에다는 관객을 슥슥 둘러보다가 구멍을 비집고 나온 다음, 한 쪽 모서리로 가서 화면을 쫙 연다. 그러자 권율의 동상 앞 광장의 모습이 보여진다.]</p>
+    <p class="dir">에다가 화면 끝을 붙잡고 스크린 모서리에서 반대쪽 모서리까지 끌어서 화면이 Wipe되면서 전환되고, 그대로 에다는 스크린 밖으로 튀어나와 무대 밖으로 나온 뒤에 XR 마에스트로로 전환할 수 있도록.</p>
+  </div>
+</div>
+
+<!-- ===== M01 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M01</span><span class="t">에다 서곡</span><span class="fixinfo">대본 [7]~[11] · 나실인 곡 · 자체 IP</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val">권율 동상 광장 실시간 씬(행주산성 배경·동상 에셋 기보유) + Koreographer 음악 카메라 컷 <span class="lv done">기존 자산</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val">에다 서곡 — 에다 XR마에스트로 지휘 · VOCES 자체 창작 IP (권리 문제 없음)</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">성악가 등장·퇴장 · 곡 종료 후 에다 단상 하강, 동상 잘 보이는 위치로</div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 동상 광장은 실시간 Unity 씬(기보유 에셋). 배경 이미지가 추가로 필요하면 행주산성 원경 정지 1장이면 충분.</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">성악가들, 등장한다.</p>
+    <p class="dir">M01. 에다 서곡</p>
+    <p class="dir">곡이 끝난다. 성악가들 퇴장한다. 에다, 단상을 내려와 권율 장군이 잘 보이게끔 선다.</p>
+  </div>
+</div>
+
+<!-- ===== 막간: 박수 튜토리얼 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">막간</span><span class="t">에다 인사 — 박수 소개·타이밍 체커 튜토리얼</span><span class="fixinfo">대본 [13]~[25]</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val"><b>박수 타이밍 체커</b> — 마이크 박수 감지 → 템포그리드 판정 → <b>PERFECT/GOOD/BAD</b> 표시 <span class="lv done">구현완료</span> (AudienceClapScorer) · 체커 UI 에다 테마 스킨 <span class="lv p1">신규 P2</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">피아니스트 전주 협업('빰 빰 빠라빰빰' — 빰 빰에서 박수 2회) · 연습 구간은 판정 표시만(발광 미연동) — Koreography 이벤트로 구간 게이팅 · <span class="warnflag">라이브 피아노 템포 정책(클릭 vs 반주 음원) 확정 필요 — 판정 정확도 최대 변수</span></div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 박수 체커 UI·판정은 실시간 Unity(구현완료).</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="line"><b>에다</b>: 여러분 안녕, 반가워! 사람 정말 많다. 오늘 공연의 이름이 뭐야? (호응) 그래, 고양이 에다 즉 이몸이 권율을 만나다! 그래서 권율 장군을 만나러 여기, 행주산성까지 왔지, 짜잔! 권율 장군의 동상! 갑옷에, 투구에, 검을 잡고 있는 위엄 넘치는 모습! 멋지지! 자, 오늘은 직접 권율 장군을 만나볼 거야. 그러려면 여러분의 도움이 필요해. 나 같은 음악가한테 필요한 건 뭘까! (관객 호응에 따라) 박수야! 여러분이 치는 박수야말로 내 힘이 되거든. 우린 오늘 그걸로 권율 장군을 깨워볼 거야. 다들 준비됐지? 좋아. 한 번 들어봐!</p>
+    <p class="dir">에다, 피아니스트에게 손짓한다. 피아니스트, 'M02 희망의 노래로'의 전주 부분을 친다.</p>
+    <p class="line"><b>에다</b>: 들었지? 빰 빰 빠라빰빰 빰 빰 빠라빰빰. 이 노래는 이 멜로디가 계속 반복해서 나와. 여러분들이 해줘야 할 건, '빰 빰'에서 박수 두 번 치는거야, 이해했지? (관객 호응 유심히) 좋아, 다같이 연습해볼까? 아 참, 연습하기 전에, 얍!</p>
+    <p class="dir">에다, 손짓하자 화면에 박수 타이밍 체커가 나타난다.</p>
+    <p class="line"><b>에다</b>: 이러면 여러분이 박수를 잘 쳤는지 알 수 있을거야. 자, 해보자!</p>
+    <p class="dir">에다, 다시 피아니스트에게 손짓하고 전주부 반복한다. 다 같이 리듬 연습한다.</p>
+    <p class="line"><b>에다</b>: 오, 잘하는데? 역시 오늘 관객들 수준이 높아. 좋아, 그럼 실전으로 가볼까!</p>
+  </div>
+</div>
+
+<!-- ===== M02 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M02</span><span class="t">희망의 나라로 — 박수 게임 ① 권율 동상 깨우기</span><span class="fixinfo">대본 [27]~[33] · 현제명 곡</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val">박수 판정 성공이 쌓일수록 <b>동상이 점점 하얗게 발광</b>(검붉음→주황→백열 가열 그라디언트) — 판정 <span class="lv done">구현완료</span> · 누적 히트→동상 발광 연동 브리지 <span class="lv p1">신규 P1</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val">희망의 나라로 — 편곡본 권리 확인 권장
+      <span class="music"><button class="play alt" onclick="playYT(this,'SwcC_MHgUM8')">▶ 참고</button></span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">에다 박수 지휘 실연 · 곡 종료 = 동상 백열 피크 · "으악, 눈부셔!" 도주 큐(가면 전환 시간 확보)</div></div>
+  </div>
+  <div class="player"></div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 동상 발광은 실시간 Unity 셰이더(판정 연동 P1). 배경은 M01 동상 광장 유지.</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">성악가들, 등장한다. M02 희망의 나라로</p>
+    <p class="dir">관객들, 에다의 지시와 음악에 맞춰 박수 친다. 박수가 타이밍에 맞게 잘 쳐지면 권율 동상이 빛난다. 점점 회차를 거듭하며 맞는 박수가 쌓이자 권율의 동상은 아주 하얗게 빛이 나게 된다. 곡이 끝난다, 성악가들, 퇴장한다.</p>
+    <p class="line"><b>에다</b>: 성공이야! (빛이 커지자) 으악, 눈부셔!</p>
+  </div>
+</div>
+
+<!-- ===== 막간: 동상→캐릭터 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">막간</span><span class="t">동상 → 권율 캐릭터 전환 · 권율 배우 등장</span><span class="fixinfo">대본 [35]~[67]</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val"><b>역모프</b> — 백열 동상이 파티클로 흩어지며 권율 캐릭터 형성(MeshParticles 양방향 <span class="lv done">기능 완료</span> · 역방향 시퀀스 프리셋 <span class="lv p1">신규 P1</span>) · 캐릭터가 동상에서 아장아장 뛰어내려 화면 밖으로 — 등퇴장 큐</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">에다 배우 <b>가면 전환</b>(화면 속 에다 소멸→무대 에다) · 권율 배우 등장(흑철릭) · 화면 안/밖 반복 개그 = 캐릭터 등퇴장 큐 반복 · <span class="warnflag">아티스트 선결: 권율 캐릭터 파츠 분리(갑옷·투구·검 없는 기본형)</span></div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 역모프는 실시간 파티클(MeshParticles, 기능완료). 필요 에셋은 권율 캐릭터 기본형(아티스트).</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">에다, 화면 바깥으로 도주한다. 바깥에 나가서 에다 가면으로 갈아 입은 후에 다시 등장한다. 이제 화면 속 에다는 없다. 무대 위로 등장한 에다는 눈부시다는 듯이 손짓하고, 결국 권율 캐릭터 등장. 하지만 위엄 있는 모습은 없고 다소 귀여운 데다가, 갑옷도 투구도 검도 사라졌다.</p>
+    <p class="line"><b>에다</b>: 어라?</p>
+    <p class="line"><b>권율</b>: 어?</p>
+    <p class="dir">권율과 에다, 권율 장군의 캐릭터 모습을 살펴본다.</p>
+    <p class="line"><b>에다</b>: 어라라?</p>
+    <p class="line"><b>권율</b>: 어라?</p>
+    <p class="line"><b>에다</b>: 이게 뭐야!</p>
+    <p class="line"><b>권율</b>: 이건 뭔가!</p>
+    <p class="line"><b>에다</b>: 장군, 이리 나와 봐!</p>
+    <p class="dir">권율 캐릭터, 동상에서 뛰어 내려오고 에다 반대쪽 화면 바깥으로 나온다.(다소 귀엽게 아장아장) 권율 배우, 등장. 흑철린만 입고 있다.</p>
+    <p class="line"><b>권율</b>: 아니!?</p>
+    <p class="line"><b>에다</b>: 장군!</p>
+    <p class="line"><b>권율</b>: 이 밖으로 나올 수가 있는 거였군. 근데 모습이 참 다르오. 어찌된 일인가? 이게 대관절 무슨 상황이고, 희한하게 생긴 자네는 누구고, 나는 왜 이러고 있는 것이고? 당최 이해가 안 가는…</p>
+    <p class="line"><b>에다</b>: (말 끊고) 난 에다야! 위대한 마에스트로이자, 세상과 세상을 잇는 음악 커뮤니케이터지. 장군이 이 바깥으로 나올 수 있었던 것도 내 덕분이고. 약간… 달라진 것 같지만 말야. 장군 소개도 해줘!</p>
+    <p class="line"><b>권율</b>: 크흠, (위엄 있게) 지정(知政)의 가문인 안동 권씨, 전 영의정 철(轍)의 아들로서, 현 수명 도원수(受命都元帥) 권율(權慄)이라 하오.</p>
+    <p class="dir">에다, 박수 친다. 관객들도 박수 친다.</p>
+    <p class="line"><b>권율</b>: 그래, 저 소리였어. 저 소리에 내가 깨어난 것 같소.</p>
+    <p class="line"><b>에다</b>: 맞아, 우리가 다같이 권율 장군을 불렀거든. 그런데, 몇가지가 빠진 것 같아. 장군.</p>
+    <p class="line"><b>권율</b>: 그렇지. (자신을 둘러보며) 일단 이 모습과…</p>
+    <p class="dir">권율, 스크린 뒤로 슬쩍 들어간다. 권율 캐릭터 등장한다. 몇 번 장난 식으로 그렇게 반복한다</p>
+    <p class="line"><b>권율</b>: 이 모습 모두 어색하거니와. 기억도 흐릿하고… 내 갑옷과 투구, 검이 사라졌군.</p>
+    <p class="line"><b>에다</b>: 그래, 지금부터 그걸 찾으러 가 보자!</p>
+    <p class="line"><b>권율</b>: 뭐? 어디서 찾는단 말인가?</p>
+    <p class="line"><b>에다</b>: 권율 장군이 가장 빛나던 곳에서! 가자!</p>
+  </div>
+</div>
+
+<!-- ===== M03 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M03</span><span class="t">Barcarolle — 행주산성 나루터·뱃길</span><span class="fixinfo">대본 [69]~[96] · Offenbach · 원곡 PD</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-oneshot)"></span>🎬 1회 AI배경</div><div class="a-val"><b>나루터 → 항해 → 옛 행주산성 도착 배경 플레이트</b>(3~4분) — 클라이맥스 '아-아'에서 정박·배경 전환(영상 타임코드-Koreographer 동기) <span class="lv mid">중</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val"><span class="warnflag">연출 결정 필요: 제안1(캐릭터가 배 위) vs 제안2(배우가 상수 스크린 갑판)</span> — 기술 권고 <b>제안2</b>(부담 최소·배우 동선 자유) · 전주 중 대사 진행 · Wipe 화면전환(에다가 이끄는 방향)</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-oneshot)"></span>🎬 고증·범위</div><div class="a-val">[89] "군사들의 모습… 기술적으로 힘들면 제외" → <b>원경 군영·목책·깃발까지만</b>(기보유 에셋), 근경 군사 제외 회신 권장</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val">Barcarolle
+      <span class="music"><button class="play" onclick="playYT(this,'U2xyUaEdJBE')">▶ 반주(MR)</button><button class="play alt" onclick="playYT(this,'0u0M4CMq7uI')">▶ 참고</button></span></div></div>
+  </div>
+  <div class="klingbox">
+    <div class="kb-head">🎬 AI 제작 지시 — M03 (본 공연 유일한 대형 AI 배경)</div>
+    <div class="kp-item">
+      <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag loop">항해 루프 · 5s</span><b>M03a · 뱃길 항해 (중간 구간, 루프 이어붙이기)</b></div>
+      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리</div>
+      <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A slow first-person boat voyage along a wide calm river at dawn, gentle mist hovering over the water, distant low hills, reed banks and willow trees slowly drifting past on both sides, soft warm morning light shimmering on the water. Camera: very slow steady forward glide, the boat never turns. Loopable traveling section — compose the water and mid-distance so the 5-second clip can be tiled/extended back-to-back. Clean stylized 3D animation, low-poly game-art world, traditional Korean Joseon-dynasty riverscape, no people.</span></div>
+      <div class="kp-note">3~4분 여정은 한 클립 불가 → 이 항해 루프를 이어 붙여 구간을 채운다(핑퐁/타일링). 전주~노래 중반 배경.</div>
+    </div>
+    <div class="kp-item">
+      <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag oneshot">1회 · 5s</span><b>M03b · 옛 행주산성 도착·정박 (전환)</b></div>
+      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리</div>
+      <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>The slow river voyage arrives at the old Haengju Sanseong mountain fortress and docks at a wooden ferry landing; the camera settles and comes to rest, revealing a winding grassy hill studded with wooden palisades, and far in the distance small military camps and fluttering banners (far background only, no close-up soldiers). Camera glides forward then gently stops. Clean stylized 3D animation, low-poly game-art world, traditional Korean Joseon-dynasty fortress landscape, warm daylight, no close-up people.</span></div>
+      <div class="kp-note">클라이맥스 '아-아'에서 정박 — 영상 타임코드↔Koreographer 동기. 근경 군사 제외(원경 군영·목책·깃발까지만, 기보유 에셋 활용). 도착 후 정지 프레임은 대사 구간 배경으로 재사용.</div>
+    </div>
+  </div>
+  <div class="player"></div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">에다, 권율을 이끌고 간다. 에다가 권율을 이끄는 방향으로 Wipe 화면전환, 화면은 행주산성 나루터로 변한다.</p>
+    <p class="dir">M03 Barcarolle — 음악, 시작한다. 성악가, 등장한다.</p>
+    <p class="mnote">연출 제안 1. 에다와 권율 배우가 퇴장하고 캐릭터가 나와서 배를 띄우고 배 위에 계속 떠 있는다.<br>연출 제안 2. 에다와 권율 배우가 상수쪽 스크린을 배 갑판처럼 만들어 그 위에 서 있는다.</p>
+    <p class="dir">전주 흐르는 중에 둘, 대사 진행.</p>
+    <p class="line"><b>권율</b>: 어디로 가는 것인가?</p>
+    <p class="line"><b>에다</b>: 권율 장군이 가장 빛나던 곳으로.</p>
+    <p class="line"><b>권율</b>: 내가 가장 빛나던 곳?</p>
+    <p class="line"><b>에다</b>: 장군이 지금 이렇게 된 건, 장군에 대한 사람들의 기억이 흐릿해서야. 우린 과거의 행주산성으로 갈 거야!</p>
+    <p class="line"><b>권율</b>: 이 모든 게 말이 되지 않는 상황이지만, 이건 더 말이 안 되는군. 어떻게 가능하단 말인가?</p>
+    <p class="line"><b>에다</b>: 음악으로!</p>
+    <p class="dir">노래, 시작된다.</p>
+    <p class="dir">노래의 클라이막스, 두 소프라노의 '아-아' 할 때쯤 배가 도착하여 정박하고, 화면이 움직여 배경이 옛 행주산성터로 변한다. 굽이진 언덕, 박혀진 목책들, 보이는 군영들. **군사들의 모습이 보이면 좋겠지만, 기술적으로 힘들면 제외. 성악가들, 퇴장한다.</p>
+    <p class="line"><b>에다</b>: 도착했다!</p>
+    <p class="line"><b>권율</b>: 이곳은…</p>
+    <p class="line"><b>에다</b>: 맞아, 행주산성이야!</p>
+    <p class="line"><b>권율</b>: 오늘은 신기한 일 잔뜩이구먼. 그래, 기억이 떠오른다… 임진 난리 때였지. 내가 광주 목사였을 시절이고.</p>
+    <p class="line"><b>에다</b>: 응. 장군은 자그마치 1500명의 의병을 이끌고 왜군을 물리치면서 북진했어. 그리고 이곳 행주 덕양산에 도착해 진지를 구축했지.</p>
+    <p class="line"><b>권율</b>: 맞아. 정말 힘든 시기였어. 그야말로 우리 한반도 전체가 전란에 휩싸인 때였다.</p>
+  </div>
+</div>
+
+<!-- ===== M04 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M04</span><span class="t">Va pensiero 또는 남촌 — 전란의 하늘·갑옷 강림</span><span class="fixinfo">대본 [98]~[125] · ⚠ 곡 미정</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-loop)"></span>🔁 LOOP 배경</div><div class="a-val">하늘을 덮는 붉고 노란 전란 구름 — 타임랩스형 준정지 플레이트 <span class="lv low">하~중</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val"><b>갑옷 강림</b> — 하늘에서 빛 파티클이 내려앉으며 갑옷 형성(Form 모드 파티클 <span class="lv done">기능 완료</span> · 갑옷 프리셋+카메라 하늘→아래 틸트 <span class="lv p1">신규 P1</span>) · 캐릭터 몸에 갑옷 부착·발광 · <span class="warnflag">갑옷 단독 메쉬 필요(아티스트)</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">조명 전환(에다·권율 흐림→성악가 탑 조명) · 권율 배우 CYC 뒤 진입→캐릭터 교대→갑옷 착용 배우 재등장(의상 체인지 큐) · 연설문은 창작 각색 대사 — 공식 자료 인용 시 표기 주의</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val"><span class="warnflag">⚠ Va pensiero(Verdi·원곡 PD) vs 남촌 — 음악감독 확정 필요</span> · 판정 미사용 곡이라 기술 영향 없음</div></div>
+  </div>
+  <div class="klingbox">
+    <div class="kb-head">🎬 AI 제작 지시 — M04</div>
+    <div class="kp-item">
+      <div class="kp-meta"><span class="kp-tag t2v">T2V</span><span class="kp-tag loop">루프 · 5s</span><b>M04 · 전란의 하늘 (붉고 노란 구름)</b></div>
+      <div class="kp-slot">🖼 생성 예정 — 결과 클립 배치 자리</div>
+      <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>Ambient background loop — an ominous war-torn sky over an ancient Korean battlefield at dusk, thick red and yellow storm clouds slowly rolling and churning across the heavens, faint drifting smoke, distant dark hills along the bottom edge. Camera fully locked, no camera movement; only the slow continuous cyclic churning of the clouds and drifting smoke. Compose so the first and last frames match, so the 5-second clip can be repeated back-to-back as a seamless loop. Clean stylized 3D animation, low-poly game-art world, dramatic ominous mood, no people.</span></div>
+      <div class="kp-note">갑옷 강림(실시간 XR)의 배경. 타임랩스형 준정지라 정지 이미지 + 엔진 미세 무빙으로 대체 가능. 카메라 하늘→아래 틸트는 Unity가 처리(배경은 하늘만).</div>
+    </div>
+  </div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">M04 Va pensiero 또는 남촌. 전주, 시작한다. 영상, 조금 더 하늘을 비추고, 전란의 기운이 드리우듯 붉고 노란 구름이 하늘을 덮는다. 에다와 권율은 단상 앞에 서 있는다.</p>
+    <p class="line"><b>권율</b>: 나와 병사들은 할 수 있는 최대한의 준비로 임했다. 왜군 3만명이 몰려온다고 했을 때 우리 병사들은 의병을 포함해 고작 2천 3백 명이었지.</p>
+    <p class="line"><b>에다</b>: 장군은 그들을 앞에 두고 말했어.</p>
+    <p class="line"><b>권율</b>: "이제 자세히 적세를 살펴본다면 그 양과 질에서 우리가 맨손으로 당해 낼 도리가 없으니 무엇으로써 제압해 이길 것인가. 오직 한 가지 죽음으로써 나라의 두터운 은혜에 보답하는 길밖에는 없도다. 남아(南兒)는 의(意)와 기(氣)만 생각할 뿐이지, 어찌 공훈과 명예를 다시 논하랴! 천 사람이 한 마음으로 서로 죽기를 맹세하자."</p>
+    <p class="dir">조명 전환. 에다와 권율의 조명은 흐려지고, 성악가들 탑 조명을 비춘다.</p>
+    <p class="dir">노래 시작, 노래 끝난다. 성악가들 퇴장한다.</p>
+    <p class="line"><b>에다</b>: 조국을 그리워하는 마음을 갖고 부르는 음악으로 지금 상황을 매치해봤어. 장군, 어때?</p>
+    <p class="line"><b>권율</b>: 좋은 음악이구나. 기억이 났다. 내가 행주산성을 어떻게 준비했고, 어떤 마음가짐으로 임했는지.</p>
+    <p class="line"><b>에다</b>: 저기 봐!</p>
+    <p class="dir">하늘에서 빛이 내려오더니 권율 장군의 갑옷으로 변한다. 영롱한 빛깔의 갑옷.</p>
+    <p class="line"><b>에다</b>: 장군의 갑옷이다! 그래, 장군의 마음가짐, 전투에 앞서서 준비하는 모습이야말로 갑옷 그 자체였던거야. 어서 가서 입어봐!</p>
+    <p class="dir">권율, 에다가 밀어주자 CYC 스크린 뒤로 들어간다. 들어가는 타이밍에 맞춰 권율 캐릭터 등장, 권율 캐릭터, 화면 한 가운데로 간다. 갑옷이 점점 내려와 (뷰도 하늘에서 아래로 내려온다) 권율의 몸에 붙는다, 빛나면서, 권율 캐릭터 갑옷이 생긴다. 권율 캐릭터, 신나면서 다시 화면 밖으로 나온다. 권율 배우, 등장한다. 이제 갑옷을 입고 있다.</p>
+    <p class="line"><b>권율</b>: 어!</p>
+    <p class="line"><b>에다</b>: 어!</p>
+    <p class="line"><b>권율</b>: 오!</p>
+    <p class="line"><b>에다</b>: 오!</p>
+    <p class="dir">권율, 다시 화면 안과 밖을 돌아다니면서 캐릭터 모습과 본인 모습을 장난스레 오간다. 그러다 무대 위로 등장한다.</p>
+  </div>
+</div>
+
+<!-- ===== 막간: 독산성 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">막간</span><span class="t">독산성 일화 — 쌀로 말 씻기기 튜토리얼</span><span class="fixinfo">대본 [127]~[138]</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val"><b>쌀로 말 씻기기</b> — 말(Idle 애니) 위로 쌀 파티클이 쏟아져 말 표면을 타고 흐르는 실시간 SDF 콜리전 <span class="lv done">구현완료</span> (매 프레임 포즈 추종 베이크) · 독산성 배경(가능 시 AI 플레이트, 불가 시 언덕 에셋) + 박수 타이밍 체커 재등장</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-bg)"></span>🖼 정지배경</div><div class="a-val">독산성 배경 — <b>선택</b>: AI 정지 플레이트 또는 기보유 언덕 에셋(대본 명시)</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">Non più andrai 멜로디 <b>뒷박</b> 박수 연습(피아노) · <span class="warnflag">고증 라벨: 독산성 '쌀로 말 씻기기'(세마대 전설)는 후대 전승 — 공식 자료에는 "전해 내려오는 이야기"로 표기</span></div></div>
+  </div>
+  <div class="klingbox">
+    <div class="kb-head">🎬 AI 제작 지시 — 독산성 막간 (선택 · 언덕 에셋 대체 가능)</div>
+    <div class="kp-item">
+      <div class="kp-meta"><span class="kp-tag t2v">T2V/정지</span><span class="kp-tag still">정지배경</span><b>독산성 언덕 정경</b></div>
+      <div class="kp-slot">🖼 생성 예정 — 결과 이미지 배치 자리</div>
+      <div class="kp-pre"><button class="kp-copy" onclick="copyKP(this)">복사</button><span>A stylized low-poly illustration — Doksan mountain fortress on a sunlit grassy hill under a clear sky, wooden ramparts along the ridge, dry summer hills rolling into the distance. Traditional Korean Joseon-dynasty fortress setting, clean low-poly game-art style, soft bright daylight. Still background image, minimal motion; leave the center-foreground open for a real-time character and horse.</span></div>
+      <div class="kp-note">쌀로 말 씻기기(실시간 SDF)의 배경. <b>대본 명시: 불가 시 기보유 언덕 에셋으로 대체</b> → AI 생성은 선택 사항. 중앙 전경은 실시간 캐릭터·말 자리로 비워둘 것.</div>
+    </div>
+  </div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="line"><b>권율</b>: 이 묵직한 느낌, 장부는 아무렴 갑옷이 있어야지. 가만, 이 갑옷이 내 마음가짐과 준비성을 의미한다면, 투구는 무엇을 의미하겠는가?</p>
+    <p class="line"><b>에다</b>: 아주 좋은 질문이야, 장군. 3만 대 2천 3백. 이 압도적인 전력 차에도 장군은 왜군의 공세를 성공적으로 막아냈어. 모두 미리 잘 준비한 덕분이었지. (권율, 갑옷을 텅텅 치면서 의기양양해 한다.) 하지만 그것만으로 막아낸 것은 아니야. 장군의 뛰어난 통찰과 지략!</p>
+    <p class="line"><b>권율</b>: 크흠흠. 자꾸 그러니 쑥스럽구먼. 하지만 잘 모르겠소, 아직도 기억이 흐릿하여.</p>
+    <p class="line"><b>에다</b>: 걱정 마, 내가 있잖아! 장군의 뛰어난 지략을 알려줄 수 있는 일화가 있어. 행주대첩이 일어나기 전, 독산성 전투를 기억해?</p>
+    <p class="line"><b>권율</b>: (머리를 쥐어짜며) 끄응… 잘 기억나지 않소.</p>
+    <p class="line"><b>에다</b>: 안 되겠다. 장군, 들어가 있어! 내가 해볼게!</p>
+    <p class="dir">에다, 권율을 화면 안으로 집어넣는다. 권율 캐릭터, 화면 안으로 들어간다. 에다, 관객에게 말한다.</p>
+    <p class="line"><b>에다</b>: 자, 이번에도 여러분의 도움을 받을 거야. 수원 독산성에서 일본군과 대치하고 있던 권율 장군의 부대에는 마실 물이 떨어져가고 있었어. 왜군이 포위하고 기다렸다면 큰일이었겠지만 이 때 권율 장군은 한 가지 꾀를 냈지. (권율 장군 따라하듯이) 쌀로 말을 씻기라! 멀리서 보면 물로 씻기는 줄 알고 조급해질 것이다! (갑자기 확 분위기 바꿔) 오페라에서도 이렇게 재치 있는 캐릭터가 있어. 그 이름도 유명한 피가로! 이번엔 그의 음악에 맞춰 박수를 쳐 볼 거야, 준비 됐지? 연습해보자.</p>
+    <p class="dir">에다가 손짓하자, 화면 바뀐다. (가능하다면 독산성 배경으로, 불가능하다면 언덕 애셋 사용하여) 당당하게 서 있는 권율 장군의 캐릭터와, 그 옆에는 위엄 있는 말 한 마리가 있다. 그리고 나온 박수 타이밍 체커. Non piu andrai의 멜로디를 피아노로 들려준다. Non piu andrai, farfalle, ne amoroso.의 멜로디 뒷박에 박수 치도록 한다. 박수 타이밍이 맞으면 쌀이 말 위로 쏟아진다.</p>
+  </div>
+</div>
+
+<!-- ===== M05 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M05</span><span class="t">Non più andrai (Figaro aria) — 박수 게임 ② 왜군 교란·투구</span><span class="fixinfo">대본 [140]~[149] · Mozart · 원곡 PD</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val">판정 <b>GOOD/PERFECT 분기 연출</b> — 대본 [146]과 판정 시스템 표기 일치 <span class="lv done">판정 완료</span> · 연동 3종 <span class="lv p1">신규 P1</span>: ① 박수 성공→쌀 버스트 ② 왜군 반응(GOOD=땀방울·군영 흔들림 / PERFECT=강한 반응) ③ 피날레(Militar!) 군영 박살·도주→<b>투구 보상 드랍</b>→클로즈업</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">'Cherubino alla vittoria!' 구간 박수 밀도 상승 유도(에다 실연 + Koreography 이벤트 전환) · 왜군 상징 에셋(깃발 군영 — 기보유) 배치</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val">Non più andrai — 원곡 PD (반주 링크 미확보 — 확정 음원 수급 필요)</div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 왜군 군영·깃발은 기보유 에셋, 반응·투구 드랍은 실시간 판정 연동(P1).</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">성악가, 등장한다.</p>
+    <p class="line"><b>에다</b>: 좋아, 이제 실전이야!</p>
+    <p class="dir">M05. Non piu andrai – Figaro aria. 노래 시작한다. 노래 시작하자, 왜군을 상징할 수 있는 애셋이 화면에 등장한다. (왜군 깃발이 끼워져 있는 군영, 섬, 어떤 형태든) 타이밍 성공해서 GOOD이 뜨면 땀방울 튀어나오거나 군영이 흔들리거나 등의 당황한 표현. Perfect 가 뜬다면 더 강하게 표현.</p>
+    <p class="dir">Cherubino alla vittoria! 할 때, 에다가 더 자주 박수 치도록 유도한다. 마지막 Militar! 할 때 박수 끝나고, 왜군 군영이 박살나거나 도망간다. 도망간 자리에 권율의 투구가 게임의 보상처럼 남아 있다. 노래 끝난다. 성악가 퇴장. 권율과 말이 있던 자리도 사라지고, 투구로 클로즈업된다.</p>
+  </div>
+</div>
+
+<!-- ===== 막간: 투구 착용 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">막간</span><span class="t">투구 착용 — 배우·캐릭터 동기 · 검의 실마리</span><span class="fixinfo">대본 [149]~[161]</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val">권율 캐릭터가 배우를 그림자처럼 추종 → 동시 투구 착용 → <b>금빛 변신 → 파티클 디졸브 소멸</b>(디졸브 <span class="lv done">기능 완료</span>) · 배우-캐릭터 동기는 오퍼레이터 수동 큐(배우 마크 도달 시 발동) <span class="lv p1">신규 P2</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">권율 배우 투구 소품 착용 타이밍 리허설 · 괴양이/고양이 개그 · <span class="warnflag">투구 단독 메쉬 필요(아티스트)</span></div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 디졸브·금빛 변신은 실시간(기능완료). 필요 에셋은 투구 단독 메쉬(아티스트).</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">권율 배우, 무대 위로 등장한다. 손에는 투구를 들고 있다. 권율 캐릭터도 그림자처럼 따라 화면에 등장한다. 권율 배우가 화면 속 투구가 있는 위치까지 오게 되면 권율 캐릭터도 투구를 줏어 든다. 같이 타이밍 맞춰서 투구를 쓴다. 투구를 쓰자, 권율 캐릭터 금빛으로 화려하게 빛나면서 투구를 쓴 권율 캐릭터로 변신하고, 곧장 파티클로 변해 사라진다.</p>
+    <p class="line"><b>권율</b>: 그래, 이 투구야말로 나의 위엄이며, 나의 통찰과 지략이구나.</p>
+    <p class="line"><b>에다</b>: 장군, 기분이 어때?</p>
+    <p class="line"><b>권율</b>: 이제 기억이 난다. 이 권율이 어떻게 왜군들을 물리쳤는지 말이야. 고맙소, 괴양이 선생.</p>
+    <p class="line"><b>에다</b>: 괴양이?</p>
+    <p class="line"><b>권율</b>: 괴양이처럼 생기지 않았는가?</p>
+    <p class="line"><b>에다</b>: 난 괴양이가 아니라 고양이야! 그리고 내 이름은 에다야. 그냥 고양이가 아니라.</p>
+    <p class="line"><b>권율</b>: 알겠소, 에다 선생.</p>
+    <p class="line"><b>에다</b>: 이제 검만 남았네. 검을 찾으러 가자!</p>
+    <p class="line"><b>권율</b>: 찾으러 갈 필요 없소. 어떻게 찾아야 할 지 알 것 같으니까.</p>
+    <p class="line"><b>에다</b>: 오!?</p>
+    <p class="line"><b>권율</b>: 그저 찾을 것은 나의 의지, 우리의 결의, 승리하겠다는 다짐이오!</p>
+  </div>
+</div>
+
+<!-- ===== M06 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M06</span><span class="t">Nessun dorma — 권율 VR 지휘 · Vincero 검 소환</span><span class="fixinfo">대본 [163]~[167] · Puccini · 원곡 PD</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val"><b>XR 마에스트로 본체</b> — 권율 배우가 화면 뒤에서 Meta Quest 착용, VR 지휘를 스크린 송출 <span class="lv done">시스템 보유</span> · <b>Vincero에서 손에 검 형성</b>(Form 파티클 + 검 메쉬, Koreographer 이벤트 트리거) <span class="lv p1">신규 P1</span> · <span class="warnflag">검 단독 메쉬 필요(아티스트) · 공연 부팅 체크리스트(OVR 재시작)·백업 영상 필수</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val">Nessun dorma — 권율 VR 지휘 · 원곡 PD
+      <span class="music"><button class="play" onclick="playYT(this,'8jRiitBGt7s')">▶ 반주(MR)</button></span></div></div>
+  </div>
+  <div class="player"></div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — VR 지휘·검 소환은 실시간 XR마에스트로(시스템 보유 + P1). 단, <b class="warnflag">백업 영상 필수</b>(OVR 실패 대비) — 이 백업만 사전 렌더/촬영으로 준비.</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">권율, 화면 뒤로 들어가서 메타 퀘스트 쓴다, 성악가 등장.</p>
+    <p class="dir">*에다는 무대 위에서 구경하거나, 무대 밖으로 나가거나, 스크린 한 쪽으로 들어가서 응원하는 식으로.</p>
+    <p class="dir">M06. Nessun dorma — XR마에스트로, 권율.</p>
+    <p class="dir">노래 시작한다. Vincero 부분에서, 권율의 손에 검이 생기는 연출. 노래 끝난다, 성악가 퇴장한다.</p>
+  </div>
+</div>
+
+<!-- ===== 막간: 검 획득 → 피날레 준비 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">막간</span><span class="t">검 되찾기 · '아름다운 나라' 박수 튜토리얼</span><span class="fixinfo">대본 [170]~[181]</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val">박수 타이밍 체커 재등장 — '아름다운 나라' 후렴('참~ 아름다운~') 박자 연습 <span class="lv done">판정 완료</span> · 실전은 M07 3차 후렴 게임과 연동</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">에다 사극톤·평상톤 전환 개그 · 피아노 후렴구 시연 · 세 번째 관객 참여 예고</div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 박수 체커 실시간(판정 완료).</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="line"><b>권율</b>: 이 검이야말로, 조선을 수호하겠다는 의지이자 힘 그 자체요!</p>
+    <p class="dir">에다, 다시 무대 위로 등장.</p>
+    <p class="line"><b>에다</b>: 드디어 검을 되찾았구나! 장군이 이렇게 지휘도 잘하는 지 몰랐네!</p>
+    <p class="line"><b>권율</b>: 다 선생에게 배운 덕이 아니겠는가. 이제 때가 되었소. 왜군을 어떻게 물리쳤는지 모두에게 보여줄 때가! 에다 선생, 이번에도 여기 모인 백성들의 도움을 받아야 할 것 같으니, 선생께서 수고해주시길 바라오.</p>
+    <p class="line"><b>에다</b>: (사극톤으로) 장군께서 그리 말씀하시지 임하지 않을 재간이 없소. (다시 원래 말투로) 자, 이제 진짜 마지막이야! 여러분, 한 번만 더 도와줘. 할 수 있지? 우리의 마지막을 함께할 노래는 '아름다운 나라'야. 모두 잘 알고 있는 노래일 것 같은데. 참~ 아름다운~ 많은 ~ 꿈이 있는~ 이 부분에 박자를 맞춰서 박수를 쳐 보는 거야. 한 번 연습해볼까?</p>
+    <p class="dir">에다, 손짓한다. 피아노 반주, 후렴구 멜로디를 쳐 준다. 에다, 박수 유도한다.</p>
+    <p class="line"><b>에다</b>: 좋아! 딱 그렇게만 해주면 될 것 같아. 이제 실전으로 가 볼까? (사극 톤으로) 준비됐소, 장군?</p>
+    <p class="line"><b>권율</b>: 이쪽은 이미 준비를 마쳤소! 자, 시작하겠소!</p>
+  </div>
+</div>
+
+<!-- ===== M07 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M07</span><span class="t">아름다운 나라 — 행주대첩 클라이맥스 (화총·신기전·행주 흔들기)</span><span class="fixinfo">대본 [183]~[204] · 한태수 곡 · 채정은 시 · ㈜예술숲 승인 필요</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val"><b>3단 관객 참여 전투 시퀀스</b> — ① 1차 후렴 박수 → 화총·화살 발사 ② 2차 후렴 박수 → 신기전 일제사격 ③ 3차 후렴 <b>행주 흔들기 → 낙석</b>, 마지막 '나라-!'에 대형 낙석으로 왜군 전멸 애니메이션 <span class="lv p1">신규 P1</span> · 박수 판정 <span class="lv done">구현완료</span> · 후렴별 VFX 트리거(화총/신기전/낙석)는 Koreographer 이벤트 신규 · <span class="warnflag">행주 흔들기 입력 방식 재확정 필요(비전 센싱 vs 박수·손동작 대체) — 2고에서 삭제됐다 7/19판 부활</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">권율 주위 화총·화살 병사·신기전·왜군 대치 배치 · 에다·권율 지휘로 박수/행주 유도 · <span class="warnflag">간주부 확장 필요([187] — 음악감독 상의)</span> · "화살도 화약도 떨어졌다 → 백성의 힘" 반전 극적 구성</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-bg)"></span>🖼 고증·범위</div><div class="a-val"><span class="warnflag">고증 라벨 필수</span>: <b>행주 흔들기·돌 나르기</b>는 1차 사료 근거 없는 후대 전승 → 공식 자료엔 "전해 내려오는 이야기"·응원 상징 동작으로 표기 · <b>신기전·화총</b>도 행주대첩 실사용은 기록 의존(확실한 화기는 승자총통·비격진천뢰) → 연출적 상징으로 라벨링</div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val">아름다운 나라 — ㈜예술숲 악보 저작권 승인 필요 (링크 미확보)</div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 화총·신기전·낙석·왜군 전멸은 전부 실시간 XR VFX(로우폴리 에셋 + Koreographer 트리거 P1). 왜군·병사·신기전은 기보유/제작 에셋. AI 영상 아님.</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">성악가, 등장한다. 또한, 권율 장군의 주위로 화총과 화살을 든 병사들, 신기전이 나타난다. 왜군의 모습도 보인다. 왜군과 권율 장군의 오케스트라, 대치한다.</p>
+    <p class="dir">M07. 아름다운 나라 — XR마에스트로, 권율.</p>
+    <p class="mnote">*간주부를 늘릴 필요 있음. 추후 어떻게 할 지 상의.</p>
+    <p class="dir">첫 소절 이후 후렴구 부분에, 에다와 권율의 지휘 아래 박수를 친다. 첫 번째 후렴이 끝날 때, 화총과 화살을 왜군에게 쏘아낸다.</p>
+    <p class="line"><b>에다</b>: 좋아!</p>
+    <p class="line"><b>권율</b>: 아니, 아직 멀었소! 왜군들은 멀쩡하오, 다시 가겠소!</p>
+    <p class="dir">두번째 후렴에 다시 박수 시작. 이번에는 신기전이 화려하게 쏘아져 왜군들을 덮친다. 하지만 여전히 채워지는 왜군들.</p>
+    <p class="mnote">*큰 추위로 견뎌낸… 부터 다음 후렴부까지 악기로만 연주.</p>
+    <p class="line"><b>권율</b>: 크윽, 역시 3만 대군인가. 이제 화살도 화약도 모두 떨어졌다. 이대로 무너져야 하는가…</p>
+    <p class="line"><b>에다</b>: 아니, 아직 포기하지 마! 우리 백성들이 있잖아. 자, 여러분. 모두 행주를 높이 들고 흔들어, 돌을 함께 날라 왜군을 무찌르자!</p>
+    <p class="dir">세번째 후렴에는 이제 관객들이 행주를 휘두른다, 행주를 휘두르는 타이밍이 맞을 때마다 일본군에게 낙석.</p>
+    <p class="dir">곡의 마지막, '나라-!' 에서 더 큰 낙석으로 일본군 모두 무찌르는 애니메이션.</p>
+    <p class="dir">다시 악기 연주로 아름다운 나라 BGM.</p>
+  </div>
+</div>
+
+<!-- ===== 엔딩: 권율 연설 → 동상化 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">엔딩</span><span class="t">권율의 당부 · 동상으로 돌아감 · 에다 아바타</span><span class="fixinfo">대본 [204]~[214]</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val"><b>권율 → 동상 재모프</b>(캐릭터가 파티클로 흩어져 다시 백열 동상으로 복귀 — 프롤로그 역방향) <span class="lv p1">신규 P1</span> · 화면에 <b>에다 아바타</b> 등장(실시간 아바타 또는 사전 렌더) <span class="lv done">에셋 보유</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-dir)"></span>🎭 연출</div><div class="a-val">권율 마무리 연설(승리 = 백성 모두의 것 · 수호 다짐) · 에다 손 흔들며 인사 → 스크린 뒤로 퇴장 · 화면 전환으로 에다 아바타 마무리 멘트</div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — 동상 재모프·에다 아바타는 실시간/기보유 에셋. 프롤로그 P1 클립의 종점 구도와 대칭되게 매칭.</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="line"><b>권율</b>: 고맙소, 백성들이여! 덕분에 절체절명의 순간에 왜군을 무찌를 수 있었으니. 이는 우리 모두의 승리요. 오늘 이곳에 모인 백성들은 들으시오! 이제는 우리 백성들이 행주대첩이라고 부르는 그 때에, 모두가 힘을 합쳤기 때문에 승리할 수 있었소. 지금 우리가 힘을 모았듯이 말이오. 이 도원수 권율은 이제 다시 제 자리로 돌아가 여러분들을 지켜보겠소. 언제까지고 우리 백성들을 굽어 살피며, 어떤 위기가 닥쳐온다면 여러분들 앞에 다시 서리다. 그 때에도 우리 힘을 합쳐 위기를 극복하도록 합시다. 어떠시오, 잘 아시겠소? (관객 호응) 좋소. 에다 선생, 고맙소. 덕분에 우리 백성들과 다시 한 번 힘을 합쳐볼 수 있었으니. 모두 보중하시길 바라오!</p>
+    <p class="line"><b>에다</b>: 뭘, 이제 다들 권율 장군을 다시 한 번 기억할 거야. 앞으로도 장군을 훨씬 더 많은 사람들이 기억할 수 있게 노력할게!</p>
+    <p class="line"><b>권율</b>: 잘 부탁드리오. 이제 정말 가겠소. 백성들이여, 보중하시오!</p>
+    <p class="dir">권율, 이제 사라져 동상으로 화한다. 이제 권율은 동상이 되었다. 에다, 손을 흔들며 인사하다가, 권율이 동상으로 변한 것을 확인하고는 스크린 뒤쪽으로 슥 들어가버린다.</p>
+    <p class="dir">이제 화면에 에다의 아바타가 나타난다.</p>
+    <p class="line"><b>에다</b>: 여러분, 어땠어? 오늘 권율 장군을 만나보고, 다시 기억하게 됐어. 앞으로도 나는 이쪽 세상과 저쪽 세상을 오가며, 음악을 통해 소통할 수 있도록 할 거야. 그게 내 소망이고, 소명이거든. 앞으로도 잘 부탁해?</p>
+  </div>
+</div>
+
+<!-- ===== M08 ===== -->
+<div class="scene">
+  <div class="s-head"><span class="no">M08</span><span class="t">에다 서곡 Reprise — 커튼콜·암전</span><span class="fixinfo">대본 [216]~[218] · M01 발췌</span></div>
+  <div class="anno">
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-rt)"></span>🖥 실시간 XR</div><div class="a-val">에다 아바타 지휘 리프라이즈 씬(M01 서곡 발췌) — 기존 공연 씬 재사용 <span class="lv done">에셋 보유</span></div></div>
+    <div class="a-row"><div class="a-key"><span class="dot" style="background:var(--c-song)"></span>🎼 연주</div><div class="a-val">에다 서곡 Reprise — 에다 아바타 지휘 · VOCES 자체 IP (권리 문제 없음)</div></div>
+  </div>
+  <div class="rtline">🖥 <b>AI 생성 불필요</b> — M01 씬 재사용(에셋 보유).</div>
+  <div class="script"><div class="cap">대본 원문</div>
+    <p class="dir">M08. 에다 서곡 Reprise. — XR마에스트로, 에다.</p>
+    <p class="dir">암전, 끝.</p>
+  </div>
+</div>
+
+<!-- ===== 부록: AI 생성 요약 ===== -->
+<div class="scene appendix">
+  <div class="s-head" style="background:var(--ink2)"><span class="no">요약</span><span class="t">AI 생성 대상 총정리 — 실제로 만들 것은 이것뿐</span></div>
+  <div class="script">
+    <p class="line" style="font-weight:800; color:var(--ink);">🎬 AI 생성 필요 (Kling)</p>
+    <p class="line">· <b>🎬 P1</b> 프롤로그 — 에다 등장 + 화면 Wipe 열기 (1회, I2V, 캐릭터 하이브리드)</p>
+    <p class="line">· <b>🎬 M03a</b> 뱃길 항해 (루프, T2V) + <b>🎬 M03b</b> 옛 행주산성 도착·정박 (1회, T2V) — 본 공연 유일한 대형 배경</p>
+    <p class="line">· <b>🔁 M04</b> 전란의 하늘 붉고 노란 구름 (루프, T2V — 정지 대체 가능)</p>
+    <p class="line">· <b>🖼 독산성</b> 언덕 정경 (정지 — <b>선택</b>, 기보유 언덕 에셋으로 대체 가능)</p>
+    <p class="line" style="font-weight:800; color:var(--ink); margin-top:12px;">🖥 실시간 XR (Unity — AI 생성 불필요)</p>
+    <p class="line">· 동상 각성 발광(M02) · 동상↔캐릭터 역모프(막간·엔딩) · 갑옷 강림(M04) · 쌀로 말 씻기기 SDF(M05막간) · 판정/왜군 반응/투구·검 드랍(M05·M06) · 투구 디졸브(막간) · 권율 VR 지휘(M06) · 3단 전투 화총·신기전·낙석(M07) · 박수 타이밍 체커(전반)</p>
+    <p class="line" style="color:var(--warn); font-weight:700; margin-top:10px;">⚠ M06 권율 VR 지휘는 실시간이지만 <b>OVR 실패 대비 백업 영상은 사전 준비 필수</b>(사전 렌더/촬영).</p>
+  </div>
+</div>
+
+<!-- ===== 부록: 2고 → 3고 주요 변경점 ===== -->
+<div class="scene appendix">
+  <div class="s-head" style="background:var(--ink2)"><span class="no">부록</span><span class="t">2고 → 3고, 그리고 3고 7/17 → 7/19 변경점 (제작 영향 요약)</span></div>
+  <div class="script">
+    <p class="line" style="font-weight:800; color:var(--ink);">■ 2고 → 3고 개편</p>
+    <p class="line">· <b>서사 개편</b> — '사이버 환생·기억 게이지(25/50/75/100%)' → '박수로 동상 각성 → 갑옷·투구·검 되찾기 여정'</p>
+    <p class="line">· <b>13곡 → 8곡</b> — 파파게노·박쥐·Je veux vivre·봉선화(가고파)·비목·뱃노래·나를 태워라 삭제. Nessun dorma는 유지되되 <b>피날레 VR 지휘 곡</b>으로 이동</p>
+    <p class="line">· <b>행주대첩 영상 4씬 삭제</b> — AI영상 최대 부담(전투 4씬·최상 난이도)이 통째로 사라짐 → AI영상 소요 16장면 → 4~5장면으로 급감</p>
+    <p class="line">· <b>쌀로 말 씻기기(M05 피가로) 게임 신설</b> — 실시간 SDF 구현 완료 상태</p>
+    <p class="line">· <b>박수 게이지 UI → 박수 타이밍 체커(PERFECT/GOOD/BAD)</b> — 실장된 판정 시스템과 표기 일치</p>
+    <p class="line">· <b>이순신·거북선·홀로그램 객석 삭제</b> — 관련 제작 항목 전부 해소</p>
+    <p class="line" style="font-weight:800; color:var(--ink); margin-top:12px;">■ 3고 7/17 → 7/19 변경 (이번 갱신)</p>
+    <p class="line">· <b>M07 '아름다운 나라' 피날레 완성</b> — 7/17판의 빈 지문 → <b>행주대첩 3단 전투 시퀀스</b> 상세화(1차 화총·화살 / 2차 신기전 / 3차 행주 흔들기·낙석 → '나라-!' 대형 낙석 전멸)</p>
+    <p class="line">· <b>행주 흔들기 관객 게임 부활</b> — 2고에서 삭제됐던 행주 흔들기가 M07 3차 후렴에 재도입 → <b>관객 참여 2종(박수·피가로) → 3종</b>. 입력 방식(비전 센싱 vs 대체) 재확정 필요</p>
+    <p class="line">· <b>엔딩 지문 확정</b> — 권율 마무리 연설(승리 = 백성 모두의 것) → 동상 재모프 → 에다 아바타 마무리 → M08 서곡 Reprise → 암전</p>
+    <p class="line">· <b>고증 라벨</b> — 부활한 행주 흔들기·돌 나르기 및 신기전·화총은 후대 전승·기록 의존 → 공식 자료엔 "전해 내려오는 이야기"·상징 연출로 표기(독산성 '쌀로 말 씻기기' 세마대 전설 라벨과 동일 원칙)</p>
+  </div>
+</div>
+
+<footer>
+  대본 원문 출처: 「고양시_대본_3고_0719.docx」(김창영, 2026-07-19 수령) — 전량 수록(축약 없음) · 원본 분석본: 「김창영대본_전문_제작요소_분석.html」(goyang-script.pages.dev, 2026-07-20) · 포맷 기준: 「정조XR 수원 스토리보드&amp;루프 통합본」(suwon_script_storyboard) · AI 제작 분류·Kling 프롬프트: 2026-07-21 작성 · 🖼 이미지는 <b>생성 예정</b>(아직 미제작) · 구현 현황: XR_Maestro 저장소 0fed852c · 고증 라벨 원칙 적용(행주 흔들기·세마·신기전)
+</footer>
+
+</div>
+
+<script>
+let openPlayer = null;
+function playYT(btn, id){
+  const scene = btn.closest('.scene');
+  const box = scene.querySelector('.player');
+  if(openPlayer && openPlayer !== box){ openPlayer.innerHTML=''; openPlayer.classList.remove('open'); }
+  if(box.classList.contains('open') && box.dataset.vid === id){
+    box.innerHTML=''; box.classList.remove('open'); box.dataset.vid=''; openPlayer=null; return;
+  }
+  box.dataset.vid = id;
+  box.innerHTML = '<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1" title="YouTube player" '
+    + 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'
+    + '<button class="close" onclick="closePlayer(this)">플레이어 닫기</button>'
+    + ' <a class="close" style="text-decoration:underline;color:var(--muted)" href="https://www.youtube.com/watch?v='+id+'" target="_blank" rel="noopener">YouTube에서 열기</a>';
+  box.classList.add('open');
+  openPlayer = box;
+}
+function closePlayer(el){
+  const box = el.closest('.player');
+  box.innerHTML=''; box.classList.remove('open'); box.dataset.vid=''; openPlayer=null;
+}
+function copyKP(btn){
+  const t = btn.nextElementSibling.textContent.trim();
+  navigator.clipboard.writeText(t).then(function(){
+    btn.textContent = '복사됨!';
+    setTimeout(function(){ btn.textContent = '복사'; }, 1200);
+  });
+}
+</script>
+<script>
+(function(){
+  var T = [2026,9,4]; // 공연일 (KST)
+  var now = new Date();
+  var k = new Date(now.getTime() + (now.getTimezoneOffset() + 540) * 60000); // KST 보정
+  var d = Math.round((Date.UTC(T[0], T[1]-1, T[2]) - Date.UTC(k.getFullYear(), k.getMonth(), k.getDate())) / 86400000);
+  var label = d > 0 ? 'D-' + d : (d === 0 ? 'D-DAY' : '공연 종료');
+  var els = document.querySelectorAll('.js-dday');
+  for (var i = 0; i < els.length; i++) els[i].textContent = label;
+})();
+</script>
+</body>
+</html>
